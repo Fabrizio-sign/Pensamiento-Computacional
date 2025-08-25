@@ -1,0 +1,24 @@
+Inicio.
+Cargar el catálogo de películas/libros desde un archivo (CSV o JSON).
+Mostrar menú principal con opciones:
+        (1) Ver catálogo
+        (2) Calificar contenido
+        (3) Obtener recomendaciones
+        (4) Salir
+     Si el usuario elige "Ver catálogo":
+        Mostrar lista de películas/libros con su título y género.
+        Regresar al menú principal.
+     Si el usuario elige "Calificar contenido":
+        Pedir al usuario que ingrese el título que desea calificar.
+        Guardar su calificación (ejemplo: de 1 a 5 estrellas) en un archivo de usuarios o en memoria.
+        Regresar al menú principal.
+     Si el usuario elige "Obtener recomendaciones":
+        Analizar las calificaciones previas del usuario.
+        Identificar los géneros con mejores calificaciones.
+        Seleccionar al azar (o por puntuación) películas/libros de esos géneros.
+        Mostrar las recomendaciones al usuario.
+        Regresar al menú principal.
+     Si el usuario elige "Salir":
+        Guardar los cambios en las calificaciones.
+Terminar la ejecución.
+Fin del programa.
