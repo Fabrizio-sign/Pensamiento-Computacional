@@ -1,2 +1,4 @@
 # Pensamiento-Computacional Para Ingenieria
-Repositorio para la clase de pensamiento computacional del tec
+Repositorio para la clase de Pensamiento Computacional Para Ingenieria, Estudiante: Iker Fabrizio Hernández Hernández A01715230, Semestre Ago-Dic 2025, Este proyecto  consiste en un sistema de recomendación de peliculas/libros/novelas que se basa en los principales gustos del usuario e intereses que el tiene.
+Lo elegi ya que ademas de que es un proyecto llamativo y didactico es algo útil y realista para la persona en su rato de ocio, en estos dias plataformas de streaming como Disney+ o Netflix son muy usados y este tipo de sistemas los tienen incorporados.
+Este proyecto cuenta con funcionalidades básicas como el registrar al usuario, recomendar contenido en base a su genero favorito del usuario, calificaciones o selecciones aleatorias dentro de sus intereses.
