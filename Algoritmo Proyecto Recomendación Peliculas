@@ -22,3 +22,116 @@ Mostrar menú principal con opciones:
         Guardar los cambios en las calificaciones.
 Terminar la ejecución.
 Fin del programa.
+
+import random
+
+= ------------------------
+= Funciones de operadores
+= ------------------------
+
+def promedio_calificaciones(calificaciones):
+    """
+    Calcula el promedio de las calificaciones de un usuario.
+    Uso de operador aritmético: suma (+), división (/)
+    """
+    if not calificaciones:
+        return 0
+    return sum(calificaciones) / len(calificaciones)
+
+def mejor_peor_calificacion(calificaciones):
+    """
+    Obtiene la mejor y peor calificación.
+    Uso de operadores: max(), min()
+    """
+    if not calificaciones:
+        return None, None
+    return max(calificaciones), min(calificaciones)
+
+def comparar_generos(genero1, genero2, puntaje1, puntaje2):
+    """
+    Compara calificaciones promedio de dos géneros.
+    Uso de operadores lógicos y de comparación.
+    """
+    if puntaje1 > puntaje2:
+        return f"El género {genero1} gusta más que {genero2}"
+    elif puntaje1 < puntaje2:
+        return f"El género {genero2} gusta más que {genero1}"
+    else:
+        return f"Los géneros {genero1} y {genero2} gustan igual."
+
+def multiplicar_recomendaciones(base, factor):
+    """
+    Multiplica el número de recomendaciones según un factor.
+    Uso de operador aritmético: *
+    """
+    return base * factor
+
+def generar_pregunta_operadores(pregunta):
+    """
+    Integra operaciones con operadores aleatorios (ejemplo tipo examen).
+    """
+    pregunta += 1
+    print(f"\nPregunta {pregunta}: ")
+
+    val1 = random.randint(1, 50)
+    val2 = random.randint(1, 50)
+
+    print(f"{val1} + {val2} = {val1 + val2}")
+    print(f"{val1} - {val2} = {val1 - val2}")
+    print(f"{val1} * {val2} = {val1 * val2}")
+    print(f"{val1} / {val2} = {val1 / val2 if val2 != 0 else 'Indefinido'}")
+
+    return pregunta
+
+# ------------------------
+# Menú principal
+# ------------------------
+
+def menu():
+    calificaciones_usuario = [4, 5, 3, 4, 5]  # ejemplo
+    pregunta = 0
+
+    while True:
+        print("\n--- MENÚ PRINCIPAL ---")
+        print("1. Ver catálogo")
+        print("2. Calificar contenido")
+        print("3. Obtener recomendaciones")
+        print("4. Salir")
+        print("5. Operaciones con operadores")  # <<--- nueva opción
+
+        opcion = input("Elige una opción: ")
+
+        if opcion == "1":
+            print("Aquí se mostraría el catálogo de películas/libros. 😊")
+
+        elif opcion == "2":
+            titulo = input("Ingresa el título a calificar: ")
+            calif = int(input("Ingresa tu calificación (1 a 5): "))
+            calificaciones_usuario.append(calif)
+            print(f"Guardada calificación {calif} para {titulo}.")
+
+        elif opcion == "3":
+            print("🎬 Generando recomendaciones basadas en tus gustos...")
+            prom = promedio_calificaciones(calificaciones_usuario)
+            print("Tu promedio de calificaciones es:", prom)
+
+        elif opcion == "4":
+            print("✅ Guardando cambios y saliendo...")
+            break
+
+        elif opcion == "5":  # Nueva opción de operadores
+            print("\n--- Operaciones con Operadores ---")
+            print("Promedio de calificaciones:", promedio_calificaciones(calificaciones_usuario))
+            print("Mejor y peor calificación:", mejor_peor_calificacion(calificaciones_usuario))
+            print(comparar_generos("Acción", "Drama", 4.5, 3.8))
+            print("Recomendaciones multiplicadas:", multiplicar_recomendaciones(3, 2))
+            pregunta = generar_pregunta_operadores(pregunta)
+
+        else:
+            print("Opción no válida, intenta de nuevo.")
+
+# ------------------------
+# Inicio del programa
+# ------------------------
+if __name__ == "__main__":
+    menu()
