@@ -135,3 +135,110 @@ def menu():
 # ------------------------
 if __name__ == "__main__":
     menu()
+import json
+import random
+
+# -------------------------------
+# Funciones del programa
+# -------------------------------
+
+def cargar_catalogo(nombre_archivo):
+    """Carga el catálogo de películas/libros desde un archivo JSON."""
+    try:
+        with open(nombre_archivo, "r", encoding="utf-8") as archivo:
+            return json.load(archivo)
+    except FileNotFoundError:
+        print("No se encontró el archivo, se iniciará un catálogo vacío.")
+        return []
+
+def guardar_catalogo(nombre_archivo, catalogo):
+    """Guarda las calificaciones en el archivo JSON."""
+    with open(nombre_archivo, "w", encoding="utf-8") as archivo:
+        json.dump(catalogo, archivo, ensure_ascii=False, indent=4)
+
+def ver_catalogo(catalogo):
+    """Muestra la lista de películas/libros con título y género."""
+    if not catalogo:
+        print("El catálogo está vacío.")
+    else:
+        for i, item in enumerate(catalogo, start=1):
+            print(f"{i}. {item['titulo']} ({item['genero']}) - Calificación: {item.get('calificacion', 'N/A')}")
+
+def calificar_contenido(catalogo):
+    """Permite al usuario calificar un título."""
+    titulo = input("Ingrese el título que desea calificar: ")
+    for item in catalogo:
+        if item["titulo"].lower() == titulo.lower():
+            try:
+                calificacion = int(input("Ingrese su calificación (1 a 5): "))
+                if 1 <= calificacion <= 5:
+                    item["calificacion"] = calificacion
+                    print(f"Se guardó la calificación de {titulo}: {calificacion} estrellas.")
+                else:
+                    print("La calificación debe estar entre 1 y 5.")
+            except ValueError:
+                print("Debe ingresar un número válido.")
+            return
+    print("El título no se encontró en el catálogo.")
+
+def obtener_recomendaciones(catalogo):
+    """Genera recomendaciones basadas en las calificaciones."""
+    generos_favoritos = {}
+
+    for item in catalogo:
+        if "calificacion" in item:
+            genero = item["genero"]
+            generos_favoritos.setdefault(genero, []).append(item["calificacion"])
+
+    if not generos_favoritos:
+        print("No hay calificaciones registradas para generar recomendaciones.")
+        return
+
+    # Calcular promedio de calificaciones por género
+    promedios = {g: sum(cals) / len(cals) for g, cals in generos_favoritos.items()}
+    mejor_genero = max(promedios, key=promedios.get)
+
+    # Seleccionar recomendación de ese género
+    recomendaciones = [item for item in catalogo if item["genero"] == mejor_genero]
+    recomendacion = random.choice(recomendaciones)
+    
+    print(f"Te recomendamos: {recomendacion['titulo']} ({recomendacion['genero']})")
+
+def mostrar_menu():
+    """Muestra el menú principal y devuelve la opción elegida."""
+    print("\n--- Menú Principal ---")
+    print("1. Ver catálogo")
+    print("2. Calificar contenido")
+    print("3. Obtener recomendaciones")
+    print("4. Salir")
+    return input("Elige una opción: ")
+
+# -------------------------------
+# Programa principal
+# -------------------------------
+
+def main():
+    archivo = "catalogo.json"
+    catalogo = cargar_catalogo(archivo)
+
+    while True:
+        opcion = mostrar_menu()
+
+        if opcion == "1":
+            ver_catalogo(catalogo)
+        elif opcion == "2":
+            calificar_contenido(catalogo)
+        elif opcion == "3":
+            obtener_recomendaciones(catalogo)
+        elif opcion == "4":
+            guardar_catalogo(archivo, catalogo)
+            print("Cambios guardados. Saliendo del programa...")
+            break
+        else:
+            print("Opción inválida, intenta de nuevo.")
+
+# ------------------------------
+# Ejecutar programa
+# ------------------------------
+if __name__ == "__main__":
+    main()
