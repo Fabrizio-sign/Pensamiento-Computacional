@@ -240,5 +240,127 @@ def main():
 # ------------------------------
 # Ejecutar programa
 # ------------------------------
+
+
+import random
+
+# ==============================
+# Funciones de operadores
+# ==============================
+
+def promedio_calificaciones(calificaciones):
+    """ Calcula el promedio de calificaciones. """
+    if not calificaciones:
+        return 0
+    return sum(calificaciones) / len(calificaciones)
+
+def mejor_peor_calificacion(calificaciones):
+    """ Obtiene la mejor y peor calificación. """
+    if not calificaciones:
+        return None, None
+    return max(calificaciones), min(calificaciones)
+
+def comparar_generos(genero1, genero2, puntaje1, puntaje2):
+    """ Compara calificaciones promedio de dos géneros. """
+    if puntaje1 > puntaje2:
+        return f"El género {genero1} gusta más que {genero2}"
+    elif puntaje2 > puntaje1:
+        return f"El género {genero2} gusta más que {genero1}"
+    else:
+        return f"Los géneros {genero1} y {genero2} gustan igual."
+
+def multiplicar_recomendaciones(base, factor):
+    """ Multiplica número de recomendaciones por un factor. """
+    return base * factor
+
+def generar_pregunta_operadores(pregunta):
+    """ Integra operaciones con operadores aleatorios. """
+    pregunta += 1
+    print(f"\nPregunta {pregunta}: ")
+    val1 = random.randint(1, 50)
+    val2 = random.randint(1, 50)
+    print(f"{val1} + {val2} = {val1 + val2}")
+    print(f"{val1} - {val2} = {val1 - val2}")
+    print(f"{val1} * {val2} = {val1 * val2}")
+    print(f"{val1} / {val2} = {val1 / val2 if val2 != 0 else 'Indefinido'}")
+    return pregunta
+
+# ==============================
+# Datos simulados
+# ==============================
+catalogo = [
+    {"titulo": "Matrix", "genero": "Ciencia Ficción"},
+    {"titulo": "El Señor de los Anillos", "genero": "Fantasía"},
+    {"titulo": "Interestelar", "genero": "Ciencia Ficción"},
+]
+
+calificaciones = {}  # Diccionario {titulo: calificación}
+
+# ==============================
+# Menú principal con decisiones
+# ==============================
+def menu():
+    while True:
+        print("\n--- MENÚ PRINCIPAL ---")
+        print("1. Ver catálogo")
+        print("2. Calificar contenido")
+        print("3. Obtener recomendaciones")
+        print("4. Salir")
+
+        opcion = input("Elige una opción: ")
+
+        if opcion == "1":
+            # Ver catálogo
+            print("\n--- CATÁLOGO ---")
+            for item in catalogo:
+                print(f"{item['titulo']} - {item['genero']}")
+        
+        elif opcion == "2":
+            # Calificar contenido
+            titulo = input("Escribe el título que deseas calificar: ")
+            existe = False
+            for item in catalogo:
+                if item["titulo"].lower() == titulo.lower():
+                    existe = True
+                    try:
+                        calif = int(input("Ingresa tu calificación (1 a 5): "))
+                        if 1 <= calif <= 5:
+                            calificaciones[item["titulo"]] = calif
+                            print(f"✅ Guardado: {item['titulo']} = {calif} estrellas")
+                        else:
+                            print("❌ La calificación debe ser entre 1 y 5.")
+                    except ValueError:
+                        print("❌ Ingresa un número válido.")
+            if not existe:
+                print("❌ Ese título no está en el catálogo.")
+        
+        elif opcion == "3":
+            # Obtener recomendaciones
+            if not calificaciones:
+                print("⚠️ Primero debes calificar algún contenido.")
+            else:
+                print("\n--- RECOMENDACIONES ---")
+                mejor, peor = mejor_peor_calificacion(list(calificaciones.values()))
+                print(f"Tu mejor calificación fue: {mejor}")
+                print(f"Tu peor calificación fue: {peor}")
+                print("Basado en tus gustos, podrías disfrutar:")
+                for item in catalogo:
+                    if item["titulo"] not in calificaciones:
+                        print(f"- {item['titulo']} ({item['genero']})")
+        
+        elif opcion == "4":
+            # Salir
+            print("Guardando calificaciones y saliendo...")
+            break
+        
+        else:
+            print("❌ Opción no válida, intenta de nuevo.")
+
+# ==============================
+# Ejecutar programa
+# ==============================
+menu()
+
+
 if __name__ == "__main__":
     main()
