@@ -23,127 +23,14 @@ Mostrar menú principal con opciones:
 Terminar la ejecución.
 Fin del programa.
 
-import random
-
-= ------------------------
-= Funciones de operadores
-= ------------------------
-
-def promedio_calificaciones(calificaciones):
-    """
-    Calcula el promedio de las calificaciones de un usuario.
-    Uso de operador aritmético: suma (+), división (/)
-    """
-    if not calificaciones:
-        return 0
-    return sum(calificaciones) / len(calificaciones)
-
-def mejor_peor_calificacion(calificaciones):
-    """
-    Obtiene la mejor y peor calificación.
-    Uso de operadores: max(), min()
-    """
-    if not calificaciones:
-        return None, None
-    return max(calificaciones), min(calificaciones)
-
-def comparar_generos(genero1, genero2, puntaje1, puntaje2):
-    """
-    Compara calificaciones promedio de dos géneros.
-    Uso de operadores lógicos y de comparación.
-    """
-    if puntaje1 > puntaje2:
-        return f"El género {genero1} gusta más que {genero2}"
-    elif puntaje1 < puntaje2:
-        return f"El género {genero2} gusta más que {genero1}"
-    else:
-        return f"Los géneros {genero1} y {genero2} gustan igual."
-
-def multiplicar_recomendaciones(base, factor):
-    """
-    Multiplica el número de recomendaciones según un factor.
-    Uso de operador aritmético: *
-    """
-    return base * factor
-
-def generar_pregunta_operadores(pregunta):
-    """
-    Integra operaciones con operadores aleatorios (ejemplo tipo examen).
-    """
-    pregunta += 1
-    print(f"\nPregunta {pregunta}: ")
-
-    val1 = random.randint(1, 50)
-    val2 = random.randint(1, 50)
-
-    print(f"{val1} + {val2} = {val1 + val2}")
-    print(f"{val1} - {val2} = {val1 - val2}")
-    print(f"{val1} * {val2} = {val1 * val2}")
-    print(f"{val1} / {val2} = {val1 / val2 if val2 != 0 else 'Indefinido'}")
-
-    return pregunta
-
-# ------------------------
-# Menú principal
-# ------------------------
-
-def menu():
-    calificaciones_usuario = [4, 5, 3, 4, 5]  # ejemplo
-    pregunta = 0
-
-    while True:
-        print("\n--- MENÚ PRINCIPAL ---")
-        print("1. Ver catálogo")
-        print("2. Calificar contenido")
-        print("3. Obtener recomendaciones")
-        print("4. Salir")
-        print("5. Operaciones con operadores")  # <<--- nueva opción
-
-        opcion = input("Elige una opción: ")
-
-        if opcion == "1":
-            print("Aquí se mostraría el catálogo de películas/libros. 😊")
-
-        elif opcion == "2":
-            titulo = input("Ingresa el título a calificar: ")
-            calif = int(input("Ingresa tu calificación (1 a 5): "))
-            calificaciones_usuario.append(calif)
-            print(f"Guardada calificación {calif} para {titulo}.")
-
-        elif opcion == "3":
-            print("🎬 Generando recomendaciones basadas en tus gustos...")
-            prom = promedio_calificaciones(calificaciones_usuario)
-            print("Tu promedio de calificaciones es:", prom)
-
-        elif opcion == "4":
-            print("✅ Guardando cambios y saliendo...")
-            break
-
-        elif opcion == "5":  # Nueva opción de operadores
-            print("\n--- Operaciones con Operadores ---")
-            print("Promedio de calificaciones:", promedio_calificaciones(calificaciones_usuario))
-            print("Mejor y peor calificación:", mejor_peor_calificacion(calificaciones_usuario))
-            print(comparar_generos("Acción", "Drama", 4.5, 3.8))
-            print("Recomendaciones multiplicadas:", multiplicar_recomendaciones(3, 2))
-            pregunta = generar_pregunta_operadores(pregunta)
-
-        else:
-            print("Opción no válida, intenta de nuevo.")
-
-# ------------------------
-# Inicio del programa
-# ------------------------
-if __name__ == "__main__":
-    menu()
 import json
 import random
 
 # -------------------------------
-# Funciones del programa
+# Funciones de catálogo
 # -------------------------------
-
 def cargar_catalogo(nombre_archivo):
-    """Carga el catálogo de películas/libros desde un archivo JSON."""
+    """Carga el catálogo desde archivo JSON."""
     try:
         with open(nombre_archivo, "r", encoding="utf-8") as archivo:
             return json.load(archivo)
@@ -152,12 +39,12 @@ def cargar_catalogo(nombre_archivo):
         return []
 
 def guardar_catalogo(nombre_archivo, catalogo):
-    """Guarda las calificaciones en el archivo JSON."""
+    """Guarda el catálogo en un archivo JSON."""
     with open(nombre_archivo, "w", encoding="utf-8") as archivo:
         json.dump(catalogo, archivo, ensure_ascii=False, indent=4)
 
 def ver_catalogo(catalogo):
-    """Muestra la lista de películas/libros con título y género."""
+    """Muestra los títulos en el catálogo."""
     if not catalogo:
         print("El catálogo está vacío.")
     else:
@@ -165,7 +52,7 @@ def ver_catalogo(catalogo):
             print(f"{i}. {item['titulo']} ({item['genero']}) - Calificación: {item.get('calificacion', 'N/A')}")
 
 def calificar_contenido(catalogo):
-    """Permite al usuario calificar un título."""
+    """Permite calificar un título del catálogo."""
     titulo = input("Ingrese el título que desea calificar: ")
     for item in catalogo:
         if item["titulo"].lower() == titulo.lower():
@@ -182,47 +69,107 @@ def calificar_contenido(catalogo):
     print("El título no se encontró en el catálogo.")
 
 def obtener_recomendaciones(catalogo):
-    """Genera recomendaciones basadas en las calificaciones."""
+    """Genera recomendaciones basadas en calificaciones."""
     generos_favoritos = {}
-
     for item in catalogo:
         if "calificacion" in item:
-            genero = item["genero"]
-            generos_favoritos.setdefault(genero, []).append(item["calificacion"])
+            generos_favoritos.setdefault(item["genero"], []).append(item["calificacion"])
 
     if not generos_favoritos:
         print("No hay calificaciones registradas para generar recomendaciones.")
         return
 
-    # Calcular promedio de calificaciones por género
+    # Calcular promedio por género
     promedios = {g: sum(cals) / len(cals) for g, cals in generos_favoritos.items()}
     mejor_genero = max(promedios, key=promedios.get)
-
-    # Seleccionar recomendación de ese género
     recomendaciones = [item for item in catalogo if item["genero"] == mejor_genero]
     recomendacion = random.choice(recomendaciones)
-    
+
     print(f"Te recomendamos: {recomendacion['titulo']} ({recomendacion['genero']})")
 
-def mostrar_menu():
-    """Muestra el menú principal y devuelve la opción elegida."""
-    print("\n--- Menú Principal ---")
-    print("1. Ver catálogo")
-    print("2. Calificar contenido")
-    print("3. Obtener recomendaciones")
-    print("4. Salir")
-    return input("Elige una opción: ")
+# -------------------------------
+# Funciones de operadores extra
+# -------------------------------
+def promedio_calificaciones(calificaciones):
+    return sum(calificaciones) / len(calificaciones) if calificaciones else 0
+
+def mejor_peor_calificacion(calificaciones):
+    return (max(calificaciones), min(calificaciones)) if calificaciones else (None, None)
+
+def comparar_generos(g1, g2, p1, p2):
+    if p1 > p2:
+        return f"El género {g1} gusta más que {g2}"
+    elif p2 > p1:
+        return f"El género {g2} gusta más que {g1}"
+    return f"Los géneros {g1} y {g2} gustan igual."
+
+def multiplicar_recomendaciones(base, factor):
+    return base * factor
+
+def generar_pregunta_operadores(pregunta):
+    pregunta += 1
+    print(f"\nPregunta {pregunta}:")
+    val1, val2 = random.randint(1, 50), random.randint(1, 50)
+    print(f"{val1} + {val2} = {val1 + val2}")
+    print(f"{val1} - {val2} = {val1 - val2}")
+    print(f"{val1} * {val2} = {val1 * val2}")
+    print(f"{val1} / {val2} = {val1 / val2 if val2 != 0 else 'Indefinido'}")
+    return pregunta
+
+# -------------------------------
+# Ejemplos de ciclos while
+# -------------------------------
+def ejemplos_ciclos():
+    print("\n--- Ejemplos de estructuras de repetición (while) ---")
+
+    # 1. Contador simple con while
+    print("\nEjemplo 1: Contador hasta 5")
+    i = 1
+    while i <= 5:
+        print("Contador:", i)
+        i += 1
+
+    # 2. Suma de números hasta que el usuario escriba 0
+    print("\nEjemplo 2: Suma de números hasta que escribas 0")
+    suma = 0
+    while True:
+        try:
+            n = int(input("Ingresa un número (0 para terminar): "))
+            if n == 0:
+                break
+            suma += n
+        except ValueError:
+            print("❌ Debes ingresar un número válido.")
+    print("La suma total es:", suma)
+
+    # 3. Validación con while
+    print("\nEjemplo 3: Validación de número entre 1 y 5")
+    opcion = 0
+    while opcion < 1 or opcion > 5:
+        try:
+            opcion = int(input("Ingresa un número del 1 al 5: "))
+        except ValueError:
+            print("❌ Eso no es un número.")
+    print("Número válido ingresado:", opcion)
 
 # -------------------------------
 # Programa principal
 # -------------------------------
-
 def main():
     archivo = "catalogo.json"
     catalogo = cargar_catalogo(archivo)
+    pregunta = 0
 
     while True:
-        opcion = mostrar_menu()
+        print("\n--- MENÚ PRINCIPAL ---")
+        print("1. Ver catálogo")
+        print("2. Calificar contenido")
+        print("3. Obtener recomendaciones")
+        print("4. Operaciones con operadores")
+        print("5. Ejemplos de ciclos while")
+        print("6. Salir")
+
+        opcion = input("Elige una opción: ")
 
         if opcion == "1":
             ver_catalogo(catalogo)
@@ -231,136 +178,21 @@ def main():
         elif opcion == "3":
             obtener_recomendaciones(catalogo)
         elif opcion == "4":
+            print("\n--- Operadores ---")
+            calificaciones_usuario = [c.get("calificacion", 0) for c in catalogo if "calificacion" in c]
+            print("Promedio:", promedio_calificaciones(calificaciones_usuario))
+            print("Mejor y peor:", mejor_peor_calificacion(calificaciones_usuario))
+            print(comparar_generos("Acción", "Drama", 4.5, 3.8))
+            print("Recomendaciones multiplicadas:", multiplicar_recomendaciones(3, 2))
+            pregunta = generar_pregunta_operadores(pregunta)
+        elif opcion == "5":
+            ejemplos_ciclos()
+        elif opcion == "6":
             guardar_catalogo(archivo, catalogo)
-            print("Cambios guardados. Saliendo del programa...")
+            print("Cambios guardados. ¡Hasta luego!")
             break
         else:
             print("Opción inválida, intenta de nuevo.")
-
-# ------------------------------
-# Ejecutar programa
-# ------------------------------
-
-
-import random
-
-# ==============================
-# Funciones de operadores
-# ==============================
-
-def promedio_calificaciones(calificaciones):
-    """ Calcula el promedio de calificaciones. """
-    if not calificaciones:
-        return 0
-    return sum(calificaciones) / len(calificaciones)
-
-def mejor_peor_calificacion(calificaciones):
-    """ Obtiene la mejor y peor calificación. """
-    if not calificaciones:
-        return None, None
-    return max(calificaciones), min(calificaciones)
-
-def comparar_generos(genero1, genero2, puntaje1, puntaje2):
-    """ Compara calificaciones promedio de dos géneros. """
-    if puntaje1 > puntaje2:
-        return f"El género {genero1} gusta más que {genero2}"
-    elif puntaje2 > puntaje1:
-        return f"El género {genero2} gusta más que {genero1}"
-    else:
-        return f"Los géneros {genero1} y {genero2} gustan igual."
-
-def multiplicar_recomendaciones(base, factor):
-    """ Multiplica número de recomendaciones por un factor. """
-    return base * factor
-
-def generar_pregunta_operadores(pregunta):
-    """ Integra operaciones con operadores aleatorios. """
-    pregunta += 1
-    print(f"\nPregunta {pregunta}: ")
-    val1 = random.randint(1, 50)
-    val2 = random.randint(1, 50)
-    print(f"{val1} + {val2} = {val1 + val2}")
-    print(f"{val1} - {val2} = {val1 - val2}")
-    print(f"{val1} * {val2} = {val1 * val2}")
-    print(f"{val1} / {val2} = {val1 / val2 if val2 != 0 else 'Indefinido'}")
-    return pregunta
-
-# ==============================
-# Datos simulados
-# ==============================
-catalogo = [
-    {"titulo": "Matrix", "genero": "Ciencia Ficción"},
-    {"titulo": "El Señor de los Anillos", "genero": "Fantasía"},
-    {"titulo": "Interestelar", "genero": "Ciencia Ficción"},
-]
-
-calificaciones = {}  # Diccionario {titulo: calificación}
-
-# ==============================
-# Menú principal con decisiones
-# ==============================
-def menu():
-    while True:
-        print("\n--- MENÚ PRINCIPAL ---")
-        print("1. Ver catálogo")
-        print("2. Calificar contenido")
-        print("3. Obtener recomendaciones")
-        print("4. Salir")
-
-        opcion = input("Elige una opción: ")
-
-        if opcion == "1":
-            # Ver catálogo
-            print("\n--- CATÁLOGO ---")
-            for item in catalogo:
-                print(f"{item['titulo']} - {item['genero']}")
-        
-        elif opcion == "2":
-            # Calificar contenido
-            titulo = input("Escribe el título que deseas calificar: ")
-            existe = False
-            for item in catalogo:
-                if item["titulo"].lower() == titulo.lower():
-                    existe = True
-                    try:
-                        calif = int(input("Ingresa tu calificación (1 a 5): "))
-                        if 1 <= calif <= 5:
-                            calificaciones[item["titulo"]] = calif
-                            print(f"✅ Guardado: {item['titulo']} = {calif} estrellas")
-                        else:
-                            print("❌ La calificación debe ser entre 1 y 5.")
-                    except ValueError:
-                        print("❌ Ingresa un número válido.")
-            if not existe:
-                print("❌ Ese título no está en el catálogo.")
-        
-        elif opcion == "3":
-            # Obtener recomendaciones
-            if not calificaciones:
-                print("⚠️ Primero debes calificar algún contenido.")
-            else:
-                print("\n--- RECOMENDACIONES ---")
-                mejor, peor = mejor_peor_calificacion(list(calificaciones.values()))
-                print(f"Tu mejor calificación fue: {mejor}")
-                print(f"Tu peor calificación fue: {peor}")
-                print("Basado en tus gustos, podrías disfrutar:")
-                for item in catalogo:
-                    if item["titulo"] not in calificaciones:
-                        print(f"- {item['titulo']} ({item['genero']})")
-        
-        elif opcion == "4":
-            # Salir
-            print("Guardando calificaciones y saliendo...")
-            break
-        
-        else:
-            print("❌ Opción no válida, intenta de nuevo.")
-
-# ==============================
-# Ejecutar programa
-# ==============================
-menu()
-
 
 if __name__ == "__main__":
     main()
