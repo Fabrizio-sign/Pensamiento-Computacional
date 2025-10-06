@@ -1,198 +1,283 @@
-Inicio.
-Cargar el catálogo de películas/libros desde un archivo (CSV o JSON).
-Mostrar menú principal con opciones:
-        (1) Ver catálogo
-        (2) Calificar contenido
-        (3) Obtener recomendaciones
-        (4) Salir
-     Si el usuario elige "Ver catálogo":
-        Mostrar lista de películas/libros con su título y género.
-        Regresar al menú principal.
-     Si el usuario elige "Calificar contenido":
-        Pedir al usuario que ingrese el título que desea calificar.
-        Guardar su calificación (ejemplo: de 1 a 5 estrellas) en un archivo de usuarios o en memoria.
-        Regresar al menú principal.
-     Si el usuario elige "Obtener recomendaciones":
-        Analizar las calificaciones previas del usuario.
-        Identificar los géneros con mejores calificaciones.
-        Seleccionar al azar (o por puntuación) películas/libros de esos géneros.
-        Mostrar las recomendaciones al usuario.
-        Regresar al menú principal.
-     Si el usuario elige "Salir":
-        Guardar los cambios en las calificaciones.
-Terminar la ejecución.
-Fin del programa.
-
 import json
 import random
 
 # -------------------------------
-# Funciones de catálogo
+# Base de datos de películas por género
 # -------------------------------
-def cargar_catalogo(nombre_archivo):
-    """Carga el catálogo desde archivo JSON."""
-    try:
-        with open(nombre_archivo, "r", encoding="utf-8") as archivo:
-            return json.load(archivo)
-    except FileNotFoundError:
-        print("No se encontró el archivo, se iniciará un catálogo vacío.")
-        return []
-
-def guardar_catalogo(nombre_archivo, catalogo):
-    """Guarda el catálogo en un archivo JSON."""
-    with open(nombre_archivo, "w", encoding="utf-8") as archivo:
-        json.dump(catalogo, archivo, ensure_ascii=False, indent=4)
-
-def ver_catalogo(catalogo):
-    """Muestra los títulos en el catálogo."""
-    if not catalogo:
-        print("El catálogo está vacío.")
-    else:
-        for i, item in enumerate(catalogo, start=1):
-            print(f"{i}. {item['titulo']} ({item['genero']}) - Calificación: {item.get('calificacion', 'N/A')}")
-
-def calificar_contenido(catalogo):
-    """Permite calificar un título del catálogo."""
-    titulo = input("Ingrese el título que desea calificar: ")
-    for item in catalogo:
-        if item["titulo"].lower() == titulo.lower():
-            try:
-                calificacion = int(input("Ingrese su calificación (1 a 5): "))
-                if 1 <= calificacion <= 5:
-                    item["calificacion"] = calificacion
-                    print(f"Se guardó la calificación de {titulo}: {calificacion} estrellas.")
-                else:
-                    print("La calificación debe estar entre 1 y 5.")
-            except ValueError:
-                print("Debe ingresar un número válido.")
-            return
-    print("El título no se encontró en el catálogo.")
-
-def obtener_recomendaciones(catalogo):
-    """Genera recomendaciones basadas en calificaciones."""
-    generos_favoritos = {}
-    for item in catalogo:
-        if "calificacion" in item:
-            generos_favoritos.setdefault(item["genero"], []).append(item["calificacion"])
-
-    if not generos_favoritos:
-        print("No hay calificaciones registradas para generar recomendaciones.")
-        return
-
-    # Calcular promedio por género
-    promedios = {g: sum(cals) / len(cals) for g, cals in generos_favoritos.items()}
-    mejor_genero = max(promedios, key=promedios.get)
-    recomendaciones = [item for item in catalogo if item["genero"] == mejor_genero]
-    recomendacion = random.choice(recomendaciones)
-
-    print(f"Te recomendamos: {recomendacion['titulo']} ({recomendacion['genero']})")
-
-# -------------------------------
-# Funciones de operadores extra
-# -------------------------------
-def promedio_calificaciones(calificaciones):
-    return sum(calificaciones) / len(calificaciones) if calificaciones else 0
-
-def mejor_peor_calificacion(calificaciones):
-    return (max(calificaciones), min(calificaciones)) if calificaciones else (None, None)
-
-def comparar_generos(g1, g2, p1, p2):
-    if p1 > p2:
-        return f"El género {g1} gusta más que {g2}"
-    elif p2 > p1:
-        return f"El género {g2} gusta más que {g1}"
-    return f"Los géneros {g1} y {g2} gustan igual."
-
-def multiplicar_recomendaciones(base, factor):
-    return base * factor
-
-def generar_pregunta_operadores(pregunta):
-    pregunta += 1
-    print(f"\nPregunta {pregunta}:")
-    val1, val2 = random.randint(1, 50), random.randint(1, 50)
-    print(f"{val1} + {val2} = {val1 + val2}")
-    print(f"{val1} - {val2} = {val1 - val2}")
-    print(f"{val1} * {val2} = {val1 * val2}")
-    print(f"{val1} / {val2} = {val1 / val2 if val2 != 0 else 'Indefinido'}")
-    return pregunta
+def inicializar_catalogo():
+    """Inicializa el catálogo con 7 géneros populares y películas representativas."""
+    catalogo = {
+        "Acción": {
+            "peliculas": [
+                "John Wick", "Mad Max: Furia en el Camino", "El Caballero de la Noche", 
+                "Misión: Imposible", "The Matrix", "Gladiador", "Vengadores: Endgame"
+            ],
+            "recomendaciones": [
+                "Duro de Matar", "Kill Bill", "El Caso Bourne", "Velocidad", 
+                "Terminator 2", "Pantera Negra", "Capitán América: El Soldado del Invierno"
+            ]
+        },
+        "Comedia": {
+            "peliculas": [
+                "Superbad", "The Hangover", "Hermanos por Peligro", "Damas de Honor",
+                "Anchorman", "21 Jump Street", "El Gran Hotel Budapest"
+            ],
+            "recomendaciones": [
+                "Pineapple Express", "Olvidando a Sarah Marshall", "Los Otros Tipos",
+                "Noche de Juegos", "Booksmart", "Scott Pilgrim vs the World", "Ted"
+            ]
+        },
+        "Drama": {
+            "peliculas": [
+                "Sueño de Fuga", "Forrest Gump", "El Padrino",
+                "El Club de la Pelea", "Buenos Muchachos", "Pulp Fiction", "La Red Social"
+            ],
+            "recomendaciones": [
+                "El Padrino: Parte II", "Scarface", "Belleza Americana", "Casablanca",
+                "Infiltrados", "Pozos de Ambición", "Ciudadano Kane"
+            ]
+        },
+        "Ciencia Ficción": {
+            "peliculas": [
+                "El Origen", "Interestelar", "Blade Runner 2049", "The Martian",
+                "La Llegada", "Distrito 9", "Star Wars: El Imperio Contraataca"
+            ],
+            "recomendaciones": [
+                "Ex Machina", "Looper", "Rompenieves", "Los Hijos del Hombre",
+                "El Quinto Elemento", "Dune", "Al Filo del Mañana"
+            ]
+        },
+        "Terror": {
+            "peliculas": [
+                "El Conjuro", "Hereditary", "El Resplandor", "Get Out",
+                "Un Lugar en Silencio", "It", "El Exorcista"
+            ],
+            "recomendaciones": [
+                "Siniestro", "El Babadook", "Insidious", "La Bruja",
+                "It Follows", "El Aro", "Actividad Paranormal"
+            ]
+        },
+        "Romance": {
+            "peliculas": [
+                "El Diario de Noa", "La La Land", "Orgullo y Prejuicio", "Titanic",
+                "Antes del Amanecer", "Eterno Resplandor de una Mente sin Recuerdos", "Locos y Ricos"
+            ],
+            "recomendaciones": [
+                "(500) Días Juntos", "El Lado Bueno de las Cosas", "La Propuesta",
+                "A Todos los Chicos de los que me Enamoré", "Bajo la Misma Estrella",
+                "Llámame por tu Nombre", "Cuestion de Tiempo"
+            ]
+        },
+        "Animación": {
+            "peliculas": [
+                "Spider-Man: Un Nuevo Universo", "Toy Story", "El Viaje de Chihiro",
+                "El Rey León", "Buscando a Nemo", "Shrek", "Coco"
+            ],
+            "recomendaciones": [
+                "Como Entrenar a tu Dragón", "Zootopia", "Kubo y las Dos Cuerdas",
+                "Los Increíbles", "Ratatouille", "Moana", "Your Name"
+            ]
+        }
+    }
+    return catalogo
 
 # -------------------------------
-# Ejemplos de ciclos while
+# Funciones del sistema de recomendación
 # -------------------------------
-def ejemplos_ciclos():
-    print("\n--- Ejemplos de estructuras de repetición (while) ---")
+def mostrar_generos_populares(catalogo):
+    """Muestra los 7 géneros populares con una película representativa de cada uno."""
+    print("\n" + "="*60)
+    print("GENEROS POPULARES DE PELICULAS")
+    print("="*60)
+    
+    generos = list(catalogo.keys())
+    for i, genero in enumerate(generos, 1):
+        pelicula_representativa = catalogo[genero]["peliculas"][0]
+        print(f"{i}. {genero:.<20} {pelicula_representativa}")
+    
+    print("="*60)
 
-    # 1. Contador simple con while
-    print("\nEjemplo 1: Contador hasta 5")
-    i = 1
-    while i <= 5:
-        print("Contador:", i)
-        i += 1
-
-    # 2. Suma de números hasta que el usuario escriba 0
-    print("\nEjemplo 2: Suma de números hasta que escribas 0")
-    suma = 0
+def elegir_genero(catalogo):
+    """Permite al usuario elegir un género y recomienda una película."""
+    generos = list(catalogo.keys())
+    
     while True:
         try:
-            n = int(input("Ingresa un número (0 para terminar): "))
-            if n == 0:
-                break
-            suma += n
+            print(f"\nElige un género (1-{len(generos)}):")
+            opcion = int(input("Opcion: "))
+            
+            if 1 <= opcion <= len(generos):
+                genero_elegido = generos[opcion - 1]
+                return genero_elegido
+            else:
+                print(f"Por favor, elige un número entre 1 y {len(generos)}")
+                
         except ValueError:
-            print("❌ Debes ingresar un número válido.")
-    print("La suma total es:", suma)
+            print("Por favor, ingresa un número válido")
 
-    # 3. Validación con while
-    print("\nEjemplo 3: Validación de número entre 1 y 5")
-    opcion = 0
-    while opcion < 1 or opcion > 5:
-        try:
-            opcion = int(input("Ingresa un número del 1 al 5: "))
-        except ValueError:
-            print("❌ Eso no es un número.")
-    print("Número válido ingresado:", opcion)
+def recomendar_pelicula(catalogo, genero):
+    """Recomienda una película del género elegido."""
+    peliculas = catalogo[genero]["peliculas"]
+    recomendaciones = catalogo[genero]["recomendaciones"]
+    
+    # Mostrar película representativa
+    print(f"\nGenero elegido: {genero}")
+    print(f"Pelicula representativa: {peliculas[0]}")
+    
+    # Recomendar una película diferente
+    pelicula_recomendada = random.choice(recomendaciones)
+    
+    print("\n" + "="*50)
+    print(f"TE RECOMENDAMOS: {pelicula_recomendada}")
+    print(f"Genero: {genero}")
+    print("="*50)
+    
+    return pelicula_recomendada
+
+def mostrar_peliculas_por_genero(catalogo, genero):
+    """Muestra todas las películas disponibles para un género."""
+    print(f"\nTodas las películas de {genero}:")
+    peliculas = catalogo[genero]["peliculas"]
+    recomendaciones = catalogo[genero]["recomendaciones"]
+    
+    print("\nPeliculas representativas:")
+    for i, pelicula in enumerate(peliculas, 1):
+        print(f"   {i}. {pelicula}")
+    
+    print("\nOtras recomendaciones:")
+    for i, pelicula in enumerate(recomendaciones, 1):
+        print(f"   {i}. {pelicula}")
+
+def obtener_recomendacion_aleatoria(catalogo):
+    """Genera una recomendación completamente aleatoria."""
+    genero_aleatorio = random.choice(list(catalogo.keys()))
+    pelicula_aleatoria = random.choice(catalogo[genero_aleatorio]["recomendaciones"])
+    
+    print("\n" + "="*40)
+    print("RECOMENDACION SORPRESA")
+    print(f"Pelicula: {pelicula_aleatoria}")
+    print(f"Genero: {genero_aleatorio}")
+    print("="*40)
+
+# -------------------------------
+# Funciones de estadísticas y análisis
+# -------------------------------
+def mostrar_estadisticas(catalogo):
+    """Muestra estadísticas del catálogo."""
+    print("\n" + "="*50)
+    print("ESTADISTICAS DEL CATALOGO")
+    print("="*50)
+    
+    total_peliculas = 0
+    for genero in catalogo:
+        total_peliculas += len(catalogo[genero]["peliculas"]) + len(catalogo[genero]["recomendaciones"])
+    
+    print(f"Generos disponibles: {len(catalogo)}")
+    print(f"Total de películas en el sistema: {total_peliculas}")
+    print(f"Peliculas por género:")
+    
+    for genero in catalogo:
+        peliculas_count = len(catalogo[genero]["peliculas"])
+        recomendaciones_count = len(catalogo[genero]["recomendaciones"])
+        print(f"   - {genero}: {peliculas_count} representativas + {recomendaciones_count} recomendaciones")
+
+def buscar_pelicula(catalogo):
+    """Permite buscar una película en el catálogo."""
+    termino = input("\nIngresa el nombre de la película a buscar: ").lower().strip()
+    
+    if not termino:
+        print("Debes ingresar un término de búsqueda")
+        return
+    
+    resultados = []
+    
+    for genero in catalogo:
+        # Buscar en películas representativas
+        for pelicula in catalogo[genero]["peliculas"]:
+            if termino in pelicula.lower():
+                resultados.append((pelicula, genero, "Representativa"))
+        
+        # Buscar en recomendaciones
+        for pelicula in catalogo[genero]["recomendaciones"]:
+            if termino in pelicula.lower():
+                resultados.append((pelicula, genero, "Recomendacion"))
+    
+    if resultados:
+        print(f"\nSe encontraron {len(resultados)} resultado(s):")
+        for pelicula, genero, tipo in resultados:
+            print(f"   - {pelicula} ({genero}) - {tipo}")
+    else:
+        print("No se encontraron películas con ese nombre")
 
 # -------------------------------
 # Programa principal
 # -------------------------------
 def main():
-    archivo = "catalogo.json"
-    catalogo = cargar_catalogo(archivo)
-    pregunta = 0
-
+    # Inicializar el catálogo
+    catalogo = inicializar_catalogo()
+    
+    print("="*50)
+    print("        SISTEMA DE RECOMENDACION DE PELICULAS")
+    print("="*50)
+    print("Descubre nuevas películas basadas en tus gustos!")
+    
     while True:
-        print("\n--- MENÚ PRINCIPAL ---")
-        print("1. Ver catálogo")
-        print("2. Calificar contenido")
-        print("3. Obtener recomendaciones")
-        print("4. Operaciones con operadores")
-        print("5. Ejemplos de ciclos while")
+        print("\n" + "="*50)
+        print("MENU PRINCIPAL")
+        print("="*50)
+        print("1. Ver generos populares y obtener recomendacion")
+        print("2. Explorar películas por género")
+        print("3. Recomendacion sorpresa")
+        print("4. Buscar pelicula")
+        print("5. Ver estadisticas del catalogo")
         print("6. Salir")
-
-        opcion = input("Elige una opción: ")
-
+        
+        opcion = input("\nElige una opcion: ").strip()
+        
         if opcion == "1":
-            ver_catalogo(catalogo)
+            # Opción 1: Ver géneros y obtener recomendación
+            mostrar_generos_populares(catalogo)
+            genero_elegido = elegir_genero(catalogo)
+            recomendar_pelicula(catalogo, genero_elegido)
+            
+            # Preguntar si quiere otra recomendación del mismo género
+            while True:
+                otra = input("\nQuieres otra recomendacion de este genero? (s/n): ").lower().strip()
+                if otra == 's':
+                    recomendar_pelicula(catalogo, genero_elegido)
+                elif otra == 'n':
+                    break
+                else:
+                    print("Por favor, ingresa 's' para si o 'n' para no")
+                    
         elif opcion == "2":
-            calificar_contenido(catalogo)
+            # Opción 2: Explorar películas por género
+            mostrar_generos_populares(catalogo)
+            genero_elegido = elegir_genero(catalogo)
+            mostrar_peliculas_por_genero(catalogo, genero_elegido)
+            
         elif opcion == "3":
-            obtener_recomendaciones(catalogo)
+            # Opción 3: Recomendación sorpresa
+            obtener_recomendacion_aleatoria(catalogo)
+            
         elif opcion == "4":
-            print("\n--- Operadores ---")
-            calificaciones_usuario = [c.get("calificacion", 0) for c in catalogo if "calificacion" in c]
-            print("Promedio:", promedio_calificaciones(calificaciones_usuario))
-            print("Mejor y peor:", mejor_peor_calificacion(calificaciones_usuario))
-            print(comparar_generos("Acción", "Drama", 4.5, 3.8))
-            print("Recomendaciones multiplicadas:", multiplicar_recomendaciones(3, 2))
-            pregunta = generar_pregunta_operadores(pregunta)
+            # Opción 4: Buscar película
+            buscar_pelicula(catalogo)
+            
         elif opcion == "5":
-            ejemplos_ciclos()
+            # Opción 5: Estadísticas
+            mostrar_estadisticas(catalogo)
+            
         elif opcion == "6":
-            guardar_catalogo(archivo, catalogo)
-            print("Cambios guardados. ¡Hasta luego!")
+            # Opción 6: Salir
+            print("\n" + "="*50)
+            print("   Gracias por usar el sistema de recomendacion!")
+            print("   Hasta la proxima!")
+            print("="*50)
             break
+            
         else:
-            print("Opción inválida, intenta de nuevo.")
+            print("Opcion invalida. Por favor, elige una opcion del 1 al 6")
 
 if __name__ == "__main__":
     main()
